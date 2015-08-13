@@ -322,8 +322,11 @@ class TestRunner(object):
         output_files = [log_name]
         output_files += [item % subn for item in suite_opts.get("extra_files", [])]
 
-        if self.args.mode == 'stingray' and (suite == 'webapi' or suite == 'security'):
+        # temporary handle for stingray 
+        if self.args.mode == 'stingray' and suite == 'security':
             cmd.extend([u'--host=%s' % _host, u'--port=%s' % _port, u'--mode=stingray'])
+        if self.args.filters and suite == 'webapi':
+            cmd.extend([u'--host=%s' % _host, u'--port=%s' % _port, u'--filter=' + self.args.filters])
 
         return cmd, output_files, log_name
 
@@ -695,6 +698,7 @@ def get_parser():
     parser.add_argument('-m', '--mode',
                         help='Test mode (stingray, phone) default (phone)',
                         action='store', default='phone')
+    parser.add_argument("-f", "--filters", action="store",help="filters for tests to run")
     parser.add_argument('tests',
                         metavar='TEST',
                         help='Tests to run',

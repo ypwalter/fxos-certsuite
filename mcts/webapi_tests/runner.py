@@ -19,8 +19,7 @@ from mozlog.structured import commandline
 from mcts.webapi_tests import semiauto
 from mcts.webapi_tests.semiauto import environment
 
-stingray_test = ['apps', 'device_storage', 'geolocation',
-                 'moztime', 'notification', 'tcp_socket']
+categorized_test = []
 
 def iter_tests(start_dir, pattern="test_*.py", mode='phone'):
     """List available Web API tests and yield a tuple of (group, tests),
@@ -35,8 +34,10 @@ def iter_tests(start_dir, pattern="test_*.py", mode='phone'):
         visited.add(root)
 
         group = os.path.relpath(root, start_dir)
-        if mode == 'stingray' and group not in stingray_test:
+        if categorized_test and group not in categorized_test:
             continue
+        #if mode == 'stingray' and group not in stingray_test:
+        #    continue
 
         tests = []
         for file in files:
@@ -72,6 +73,50 @@ def iter_tests(start_dir, pattern="test_*.py", mode='phone'):
         if len(tests) > 0:
             yield group, tests
 
+def filters(args_filter):
+    # read manifest - test_name,characterist1,characterist2,...
+    manifest = []
+    current_manifest = os.path.join(os.path.dirname(__file__), "manifest")
+    with open(current_manifest, 'r') as f:
+        for line in f:
+           if not line.startswith("#") and not line.strip() == "":
+               manifest.append(line.strip())
+
+    # extract test characteristics - {"test_name", "characterist1,characterist2,..."}
+    tests = {}
+    for test in manifest:
+        temp = test.split(",")
+        tests[temp[0]] = temp[1:]
+
+    # start to filter right - {"key", True/False}
+    filters = {}
+    cur = 0
+    selected = []
+    if args_filter is not None:
+        for i in range(len(args_filter)):
+            if i != cur and (args_filter[i] == "+" or args_filter[i] == "-"):
+                filters[args_filter[cur+1:i]] = (args_filter[cur] == "+")
+                cur = i
+        filters[args_filter[cur+1:i+1]] = (args_filter[cur] == "+")
+        print filters
+
+        for test in tests:
+            true = True
+            characterists = tests[test]
+            if len(characterists) == 0:
+                true = False
+            has_key = False
+            for c in characterists:
+                if filters.has_key(c):
+                    true = true & filters[c]
+                    has_key = True
+            if true and has_key:
+                selected.append(test)
+    else:
+       selected = tests.keys()
+
+    print selected
+    return selected
 
 def main():
     parser = argparse.ArgumentParser(
@@ -96,6 +141,7 @@ def main():
     parser.add_argument('-m', '--mode',
                         help='Test mode (stingray, phone) default (phone)',
                         action='store', default='phone')
+    parser.add_argument("-f", "--filters", action="store",help="filters for tests to run")
     parser.add_argument('-p', "--device-profile", action="store",  type=os.path.abspath,
                         help="specify the device profile file path which could include skipped test case information")
     parser.add_argument(
@@ -104,6 +150,9 @@ def main():
     args = parser.parse_args(sys.argv[1:])
     logger = commandline.setup_logging(
         "webapi", vars(args), {"raw": sys.stdout})
+
+    if args.filters:
+        categorized_test = filters(args.filters)
 
     if args.list_test_groups and len(args.include) > 0:
         print >> sys.stderr("%s: error: cannot list and include test "

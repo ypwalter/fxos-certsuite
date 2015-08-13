@@ -56,8 +56,9 @@ def switch_to_app_management(marionette):
     marionette.switch_to_frame()
     # TODO(mdas): Replace this with pkg_resources if we know that we'll be
     # installing this as a package
+
     marionette.import_script(
-        os.path.join(os.path.split(__file__)[0], "app_management.js"))
+        os.path.join(os.path.dirname(gaiatest.__file__), "atoms", "gaia_apps.js"))
 
 
 def launch(marionette):
