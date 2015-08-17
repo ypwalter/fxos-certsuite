@@ -6,6 +6,7 @@ import os
 
 import fxos_appgen
 
+import gaiatest
 from marionette_driver.errors import MarionetteException
 
 
