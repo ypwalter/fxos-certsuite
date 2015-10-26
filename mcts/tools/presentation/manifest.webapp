@@ -1,0 +1,22 @@
+{
+  "name": "Presentation API Testing in MCTS",
+  "description": "This is for testing in Mozilla Certification Suite",
+  "launch_path": "/index.html",
+  "type": "certified",
+  "role": "system",
+  "developer": {
+    "name": "Walter Chen",
+    "url": "https://github.com/mozilla-b2g/fxos-certsuite"
+  },
+  "locales": {
+    "en-US": {
+      "name": "Presentation API Testing in MCTS",
+      "description": "This is for testing in Mozilla Certification Suite"
+    }
+  },
+  "default_locale": "en-US",
+  "permissions": {
+    "presentation":{},
+    "moz-extremely-unstable-and-will-change-webcomponents":{}
+  }
+}
