@@ -6,6 +6,7 @@ from mcts.webapi_tests.semiauto import TestCase
 from adb_helper import AdbHelper
 from mdns import ServiceListener
 from presentation_controller.controller import PresentationApiController
+from mcts_apps import MCTSApps
 
 class TestPresentation(TestCase):
     """
@@ -33,6 +34,13 @@ class TestPresentation(TestCase):
         zeroconf = Zeroconf()
         flag = False
         listener = ServiceListener()
+
+        # Using MCTS apps for launching the app
+        mcts = MCTSApps(self.marionette)
+        mcts.launch("MCTS")
+
+        # TODO: need to find the manifest url for MCTS presentation api test app
+        #       should parse this information to Socket Client for json to be sent
 
         # Start [mDNS Services Discovery]
         # Listen to _mozilla_papi._tcp in local area
