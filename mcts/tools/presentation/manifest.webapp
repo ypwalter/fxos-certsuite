@@ -1,6 +1,6 @@
 {
-  "name": "Presentation API Testing in MCTS",
-  "description": "This is for testing in Mozilla Certification Suite",
+  "name": "mctsapp",
+  "description": "This is for testing of presentation API in Mozilla Certification Suite",
   "launch_path": "/index.html",
   "type": "certified",
   "role": "system",
@@ -10,8 +10,8 @@
   },
   "locales": {
     "en-US": {
-      "name": "Presentation API Testing in MCTS",
-      "description": "This is for testing in Mozilla Certification Suite"
+      "name": "mctsapp",
+      "description": "This is for testing of presentation API in Mozilla Certification Suite"
     }
   },
   "icons": {
