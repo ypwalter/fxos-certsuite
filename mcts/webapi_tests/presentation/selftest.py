@@ -3,6 +3,8 @@
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
 import json
+import moznetwork
+import random
 import re
 
 from time import sleep
@@ -19,13 +21,13 @@ ip_reg = re.compile("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
 # TODO: Check ip_reg.match(device_ip)
 
 # Initial socket server for testig purpose
-client_server = PresentationApiController()
-client_server_host = client_server.get_addr()
+client_server_host = moznetwork.get_ip()
+client_server = PresentationApiController(host=client_server_host)
 client_server_port = client_server.get_port()
 
 # Initial socket client for testig purpose
-controller = PresentationApiController()
-controller_host = controller.get_addr()
+controller_host = moznetwork.get_ip()
+controller = PresentationApiController(host=controller_host)
 controller_port = controller.get_port()
 
 zeroconf = Zeroconf()
@@ -66,10 +68,11 @@ print("Presentation API Server found - " + flag[0] + ":" + str(flag[1]))
 controller.set_pre_action(flag[0], flag[1])
 
 # Send message to presentation server
-msg_first = '{"type":"requestSession:Init", "id":"MCTS", "url":"' + manifesturl + '", "presentationId":"presentationMCTS"}\n'
-msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + "10.247.24.65" + '"], "tcpPort":' + str(9998) + '}}\n'
-controller.send_pre_action_message(msg_first)
-controller.send_pre_action_message(msg_second)
+msg_first = '{"type":"requestSession:Init", "id":"MCTS' + str(random.randint(1, 1000)) + '", "url":"' + manifesturl + '", "presentationId":"presentationMCTS' + str(random.randint(1, 1000)) + '"}\n'
+msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + client_server_host + '"], "tcpPort":' + str(client_server_port) + '}}\n'
+controller.send_pre_action_message(msg_first + msg_second)
+print(msg_first)
+print(msg_second)
 
 # Receive the message from presentation sever
 pre_received = controller.recv_pre_action_message()
@@ -84,7 +87,7 @@ print(" " + pre_received.rstrip())
 print("First phrase of presentation API communication done.")
 
 # Start [Client Side Server - Target Device Communication]
-# Start to listen
+# Start to accept
 client_server.start()
 
 # Client side server sends message to target device
