@@ -20,3 +20,17 @@ class MCTSApps():
         if switch_to_frame:
             self.switch_to_frame(app.frame_id, url)
         return app
+
+class GaiaApp(object):
+
+    def __init__(self, origin=None, name=None, frame=None, src=None, manifest_url=None, entry_point=None):
+        self.frame = frame
+        self.frame_id = frame
+        self.src = src
+        self.name = name
+        self.origin = origin
+        self.manifest_url = manifest_url
+        self.entry_point = entry_point
+
+    def __eq__(self, other):
+        return self.__dict__ == other.__dict__

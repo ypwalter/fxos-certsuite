@@ -45,7 +45,7 @@ var MCTSApps = {
     }
 
     let apps = window.wrappedJSObject.Applications.installedApps;
-    let normalizedSearchName = GaiaApps.normalizeName(name);
+    let normalizedSearchName = MCTSApps.normalizeName(name);
 
     for (let manifestURL in apps) {
       let app = apps[manifestURL];
@@ -56,14 +56,14 @@ var MCTSApps = {
           let currentEntryPoint = entryPoints[ep];
           let appName = currentEntryPoint.name;
 
-          if (normalizedSearchName === GaiaApps.normalizeName(appName)) {
+          if (normalizedSearchName === MCTSApps.normalizeName(appName)) {
             return sendResponse(app, appName, ep);
           }
         }
       } else {
         let appName = app.manifest.name;
 
-        if (normalizedSearchName === GaiaApps.normalizeName(appName)) {
+        if (normalizedSearchName === MCTSApps.normalizeName(appName)) {
           return sendResponse(app, appName);
         }
       }
@@ -75,11 +75,11 @@ var MCTSApps = {
   // app frame's id if successful, false if the app can't be found, or times
   // out if the app frame can't be found after launching the app.
   launchWithName: function(name) {
-    GaiaApps.locateWithName(name, function(app, appName, entryPoint) {
+    MCTSApps.locateWithName(name, function(app, appName, entryPoint) {
       if (app) {
         let manager = window.wrappedJSObject.AppWindowManager || window.wrappedJSObject.WindowManager;
         let runningApps = manager.getRunningApps();
-        let origin = GaiaApps.getRunningAppOrigin(appName);
+        let origin = MCTSApps.getRunningAppOrigin(appName);
 
         let sendResponse = function() {
           let app = runningApps[origin];
@@ -106,7 +106,7 @@ var MCTSApps = {
                 sendResponse();
               },
               function() {
-                origin = GaiaApps.getRunningAppOrigin(appName);
+                origin = MCTSApps.getRunningAppOrigin(appName);
                 return manager.getDisplayedApp() == origin;
               }
             );

@@ -2,11 +2,11 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
-from mcts.webapi_tests.semiauto import TestCase
 from adb_helper import AdbHelper
-from mdns import ServiceListener
-from presentation_controller.controller import PresentationApiController
 from mcts_apps import MCTSApps
+from mdsn import ServiceListener
+from presentation_controller.controller import PresentationApiController
+from zeroconf import ServiceBrowser, Zeroconf
 
 class TestPresentation(TestCase):
     """
