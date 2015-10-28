@@ -2,6 +2,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this file,
 # You can obtain one at http://mozilla.org/MPL/2.0/.
 
+import json
+import re
+
+from time import sleep
 from adb_helper import AdbHelper
 from mcts_apps import MCTSApps
 from mdsn import ServiceListener
@@ -11,7 +15,15 @@ from zeroconf import ServiceBrowser, Zeroconf
 # Get device IP for mDNS matching
 device_ip = AdbHelper.adb_shell("ifconfig wlan0").split(" ")[2]
 
+ip_reg = re.compile("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
+# TODO: Check ip_reg.match(device_ip)
+
 # Initial socket server for testig purpose
+client_server = PresentationApiController()
+client_server_host = client_server.get_addr()
+client_server_port = client_server.get_port()
+
+# Initial socket client for testig purpose
 controller = PresentationApiController()
 controller_host = controller.get_addr()
 controller_port = controller.get_port()
@@ -27,10 +39,9 @@ m.start_session()
 
 # Using MCTS apps for launching the app
 mcts = MCTSApps(m)
-mcts.launch("MCTS")
+manifesturl = mcts.getManifestURL("mctsapp")
 
-# TODO: need to find the manifest url for MCTS presentation api test app
-#       should parse this information to Socket Client for json to be sent
+print("MCTS Presentation APP manifestURL got.")
 
 # Start [mDNS Services Discovery]
 # Listen to _mozilla_papi._tcp in local area
@@ -45,39 +56,48 @@ try:
         time = time - 0.2
 finally:
     zeroconf.close()
-#TODO: IP Verification Required
+
+# TODO: Check ip_reg.match(flag[0])
+
+print("Presentation API Server found - " + flag[0] + ":" + str(flag[1]))
 
 # Start [Client - Target Device Communication]
 # Setup presentation server's host and port
 controller.set_pre_action(flag[0], flag[1])
 
 # Send message to presentation server
-msg_first = '{"type":"requestSession:Init", "id":"MCTS", "url":"app://notification-receiver.gaiamobile.org/index.html", "presentationId":"presentationMCTS"}'
-msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + controller_host + '"], "tcpPort":' + str(controller_port) + '}}'
+msg_first = '{"type":"requestSession:Init", "id":"MCTS", "url":"' + manifesturl + '", "presentationId":"presentationMCTS"}\n'
+msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + "10.247.24.65" + '"], "tcpPort":' + str(9998) + '}}\n'
 controller.send_pre_action_message(msg_first)
 controller.send_pre_action_message(msg_second)
 
 # Receive the message from presentation sever
 pre_received = controller.recv_pre_action_message()
 
-#TODO: Verify Controller Side Data
+response = json.loads(pre_received.rstrip())
+#TODO: Verify Controller Side Data: response["type"] == "requestSession:Answer"
 
 # close socket
 controller.finish_pre_action()
 
+print(" " + pre_received.rstrip())
+print("First phrase of presentation API communication done.")
+
 # Start [Client Side Server - Target Device Communication]
-# Start listen
-controller.start()
+# Start to listen
+client_server.start()
 
 # Client side server sends message to target device
-msg = 'This is Controller\'s first message.'
-controller.sendall(msg)
+msg = 'echo'
+client_server.sendall(msg)
 print('Send: {}'.format(msg))
 
 #TODO: App Side Verification Required
 
 # Client side server receives data/response
-controller_received = controller.recv(1024)
-print('Recv: {}'.format(controller_received))
+client_server_received = client_server.recv(1024)
+print('Recv: {}'.format(client_server_received))
+
+print("Second phrase of presentation API communication done.")
 
 #TODO: App Side Verification Required
