@@ -5,7 +5,7 @@
 'use strict';
 
 var MCTSApps = {
-  getMCTSManifestURL: function() {
+  getMCTSManifestURL: function(appname) {
     let req = navigator.mozApps.mgmt.getAll();
 
     //onsuccess failed, use wait instead for now.
@@ -13,7 +13,7 @@ var MCTSApps = {
       console.log("In loop");
       for(var i = 0; i < req.result.length; i++) {
         console.log(req.result[i].manifest.name);
-        if(req.result[i].manifest.name == "mctsapp") {
+        if(req.result[i].manifest.name == appname) {
           marionetteScriptFinished(req.result[i].manifestURL);
         }
       }

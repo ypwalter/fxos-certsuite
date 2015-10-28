@@ -41,7 +41,7 @@ m.start_session()
 
 # Using MCTS apps for launching the app
 mcts = MCTSApps(m)
-manifesturl = mcts.getManifestURL("mctsapp")
+manifesturl = mcts.getManifestURL(name="mctsapp")
 
 print("MCTS Presentation APP manifestURL got.")
 
@@ -68,7 +68,7 @@ print("Presentation API Server found - " + flag[0] + ":" + str(flag[1]))
 controller.set_pre_action(flag[0], flag[1])
 
 # Send message to presentation server
-msg_first = '{"type":"requestSession:Init", "id":"MCTS' + str(random.randint(1, 1000)) + '", "url":"' + manifesturl + '", "presentationId":"presentationMCTS' + str(random.randint(1, 1000)) + '"}\n'
+msg_first = '{"type":"requestSession:Init", "id":"MCTS' + str(random.randint(1, 1000)) + '", "url":"' + manifesturl.replace("manifest.webapp", "index.html") + '", "presentationId":"presentationMCTS' + str(random.randint(1, 1000)) + '"}\n'
 msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + client_server_host + '"], "tcpPort":' + str(client_server_port) + '}}\n'
 controller.send_pre_action_message(msg_first + msg_second)
 print(msg_first)

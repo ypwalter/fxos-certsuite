@@ -1,3 +1,5 @@
+console.log("mcts test app is now up!", connection.state);
+
 var addConnection = function(connection) {
   connection.onstatechange = function () {
     // connection.state is either 'connected,' 'closed,' or 'terminated'
@@ -5,9 +7,12 @@ var addConnection = function(connection) {
   };
   connection.onmessage = function (evt) {
       // echo back the data
+      console.log("mcts trying to ECHO back!");
       connection.send(evt.data);
   };
 };
+
+console.log("mcts test app is setting up connections!");
 
 navigator.presentation.receiver.getConnection().then(addConnection);
 navigator.presentation.receiver.onconnectionavailable = function(evt) {
@@ -15,3 +20,5 @@ navigator.presentation.receiver.onconnectionavailable = function(evt) {
     addConnection(connections[connections.length-1]);
   });
 };
+
+console.log("mcts test app javascript loaded");

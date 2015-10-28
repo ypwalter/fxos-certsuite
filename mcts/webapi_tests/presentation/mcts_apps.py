@@ -9,5 +9,5 @@ class MCTSApps():
 
     def getManifestURL(self, name, switch_to_frame=True, url=None, launch_timeout=None):
         self.marionette.switch_to_frame()
-        result = self.marionette.execute_async_script("MCTSApps.getMCTSManifestURL()", script_timeout=launch_timeout)
+        result = self.marionette.execute_async_script("MCTSApps.getMCTSManifestURL('" + name + "')", script_timeout=launch_timeout)
         return result
