@@ -1,4 +1,4 @@
-console.log("mcts test app is now up!", connection.state);
+console.log("mcts test app is now up!");
 
 var addConnection = function(connection) {
   connection.onstatechange = function () {
