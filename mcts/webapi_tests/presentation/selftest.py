@@ -14,16 +14,18 @@ from mdsn import ServiceListener
 from presentation_controller.controller import PresentationApiController
 from zeroconf import ServiceBrowser, Zeroconf
 
+# Don't need to initial marionette in real test cases
+from marionette import Marionette
+m = Marionette('localhost', port=2828)
+m.start_session()
+
+# TODO: do it in different way for TV
 # Get device IP for mDNS matching
 device_ip = AdbHelper.adb_shell("ifconfig wlan0").split(" ")[2]
+device_ip_webapi = m.execute_script("return navigator.mozWifiManager.connectionInformation.ipAddress;")
 
 ip_reg = re.compile("\d{1,3}.\d{1,3}.\d{1,3}.\d{1,3}")
 # TODO: Check ip_reg.match(device_ip)
-
-# Initial socket server for testig purpose
-client_server_host = moznetwork.get_ip()
-client_server = PresentationApiController(host=client_server_host)
-client_server_port = client_server.get_port()
 
 # Initial socket client for testig purpose
 controller_host = moznetwork.get_ip()
@@ -33,11 +35,6 @@ controller_port = controller.get_port()
 zeroconf = Zeroconf()
 flag = False
 listener = ServiceListener()
-
-# Don't need to initial marionette in real test cases
-from marionette import Marionette
-m = Marionette('localhost', port=2828)
-m.start_session()
 
 # Using MCTS apps for launching the app
 mcts = MCTSApps(m)
@@ -69,7 +66,7 @@ controller.set_pre_action(flag[0], flag[1])
 
 # Send message to presentation server
 msg_first = '{"type":"requestSession:Init", "id":"MCTS' + str(random.randint(1, 1000)) + '", "url":"' + manifesturl.replace("manifest.webapp", "index.html") + '", "presentationId":"presentationMCTS' + str(random.randint(1, 1000)) + '"}\n'
-msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + client_server_host + '"], "tcpPort":' + str(client_server_port) + '}}\n'
+msg_second = '{"type":"requestSession:Offer", "offer":{"type":1, "tcpAddress":["' + controller_host + '"], "tcpPort":' + str(controller_port) + '}}\n'
 controller.send_pre_action_message(msg_first + msg_second)
 print(msg_first)
 print(msg_second)
@@ -88,18 +85,18 @@ print("First phrase of presentation API communication done.")
 
 # Start [Client Side Server - Target Device Communication]
 # Start to accept
-client_server.start()
+controller.start()
 
 # Client side server sends message to target device
 msg = 'echo'
-client_server.sendall(msg)
+controller.sendall(msg)
 print('Send: {}'.format(msg))
 
 #TODO: App Side Verification Required
 
 # Client side server receives data/response
-client_server_received = client_server.recv(1024)
-print('Recv: {}'.format(client_server_received))
+controller_received = controller.recv(1024)
+print('Recv: {}'.format(controller_received))
 
 print("Second phrase of presentation API communication done.")
 
